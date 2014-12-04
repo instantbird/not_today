@@ -6,7 +6,7 @@
 <Description about="urn:mozilla:install-manifest">
 
   <em:id>nottoday@mic.instantbird.org</em:id>
-  <em:version>0.2</em:version>
+  <em:version>0.3</em:version>
   <em:name>Not today!</em:name>
   <em:description>What do we say in logs? Not today! - replaces any reference to log.bezut.info/instantbird/(today|yesterday) with the correct date before sending the message</em:description>
   <em:type>2</em:type>
@@ -17,8 +17,8 @@
   <em:targetApplication>
     <Description>
       <em:id>{33cb9019-c295-46dd-be21-8c4936574bee}</em:id>
-      <em:minVersion>1.4a1pre</em:minVersion>
-      <em:maxVersion>1.4a1pre</em:maxVersion>
+      <em:minVersion>1.6a1pre</em:minVersion>
+      <em:maxVersion>1.6a1pre</em:maxVersion>
     </Description>
   </em:targetApplication>
 

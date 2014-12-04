@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/imServices.jsm");
+Components.utils.import("resource:///modules/imWindows.jsm");
 
-var originalAddConversationFunction;
-
-function replaceLogLinks (aString) {
-  if (!aString.contains("log.bezut.info"))
-    return aString;
+function replaceLogLinks(aOutgoingMessage) {
+  let text = aOutgoingMessage.message;
+  if (!text.contains("log.bezut.info"))
+    return;
   
   let rewriteDate = function (match, ...params) {
      // params[1] is the second parenthesized submatch string here.
@@ -26,28 +26,36 @@ function replaceLogLinks (aString) {
     return params[0] + twoChar(date.getUTCFullYear()) +
            twoChar(date.getUTCMonth() + 1) + twoChar(date.getUTCDate());
   };
-  aString = aString.replace(/(log\.bezut\.info\/instantbird\/)(today|yesterday)/,
+  text = text.replace(/(log\.bezut\.info\/instantbird\/)(today|yesterday)/,
                             rewriteDate, "gi" /* global, case-insensitive */);
-  return aString;
+  aOutgoingMessage.message = text;
+}
+
+var replaceObserver = {
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != "preparing-message")
+      return;
+    // aSubject is an imIOutgoingMessage.
+    replaceLogLinks(aSubject);
+  }
+}
+
+var convObserver = {
+  observe: function(aSubject, aTopic, aData) {
+    aSubject.addObserver(replaceObserver);
+  }
 }
 
 function startup (data, reason) {
-  let cs = Services.conversations.wrappedJSObject;
-  originalAddConversationFunction = cs.addConversation;
-  cs.addConversation = function (aPurpleConversation) {
-    let wrapper = {
-      __proto__: aPurpleConversation,
-      _conv: aPurpleConversation,
-      sendMsg: function(aMsg) {
-        this._conv.sendMsg(replaceLogLinks(aMsg));
-      }
-    };
-    originalAddConversationFunction.call(cs, wrapper);
-  };
+  Conversations._conversations.forEach(aConv =>
+    aConv.conv.addObserver(replaceObserver));
+  Services.obs.addObserver(convObserver, "new-ui-conversation", false);
 }
+
 function shutdown (data, reason) {
-  let cs = Services.conversations.wrappedJSObject;
-  cs.addConversation = originalAddConversationFunction;
+  Conversations._conversations.forEach(aConv =>
+    aConv.conv.removeObserver(replaceObserver));
+  Services.obs.removeObserver(convObserver, "new-ui-conversation");
 }
 
 function install (data, reason) {}
