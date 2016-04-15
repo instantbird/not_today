@@ -9,7 +9,7 @@ function replaceLogLinks(aOutgoingMessage) {
   let text = aOutgoingMessage.message;
   if (!text.contains("log.bezut.info"))
     return;
-  
+
   let rewriteDate = function (match, ...params) {
      // params[1] is the second parenthesized submatch string here.
     let str = params[1].toLowerCase();
