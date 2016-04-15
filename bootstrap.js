@@ -7,7 +7,7 @@ Components.utils.import("resource:///modules/imWindows.jsm");
 
 function replaceLogLinks(aOutgoingMessage) {
   let text = aOutgoingMessage.message;
-  if (!text.contains("log.bezut.info"))
+  if (!text.includes("log.bezut.info"))
     return;
 
   let rewriteDate = function (match, ...params) {
